@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+    </style>
+    <script>
+        
+        const requestBody = {
+            '_fullname': 123,
+            '_email': 'test@test.com',
+            'asd': 'asd'
+        };
+
+        window.onload = function() {
+            fetch('http://localhost:3000', {
+                'method': 'POST',
+                'body': JSON.stringify(requestBody),
+                'headers': new Headers({
+                    'Content-Type': 'application/json'
+                })
+            })
+            .then(res => res.json())
+            .catch(error => console.error('Error:', error))
+            .then(handleResponse)
+
+            function handleResponse(response) {
+                console.log(response);
+                logger.innerHTML = syntaxHighlight(response);
+            }
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+    </script>
+</head>
+<body>
+    <pre id="logger"></pre>    
+</body>
+</html>
